@@ -8,7 +8,6 @@ Artificial Intelligence-based Thigh Muscle Volume Profiling on CT in Elderly Eas
 
 - `table1_print.py`: Reproduces Table 1 baseline characteristics and exports a Word table.
 - `table2_print.py`: Reproduces Table 2 muscle volume and fat percentage descriptive results and exports a Word table.
-- `revision_adjusted_analysis.py`: Generates revision analyses, including height-squared normalized volume summaries, pairwise group comparisons with multiple-comparison correction, multivariable regression models, BMI sensitivity analyses, and variance inflation factors.
 
 ## Files Not Included
 
@@ -51,7 +50,6 @@ Then run:
 ```bash
 python table1_print.py
 python table2_print.py
-python revision_adjusted_analysis.py
 ```
 
 The scripts print the results to the console and save Word-format output tables in the working directory.
@@ -60,10 +58,6 @@ The scripts print the results to the console and save Word-format output tables 
 
 - `table1_output.docx`
 - `table2_output.docx`
-- `revision_normalized_volume_table.docx`
-- `revision_pairwise_comparison_table.docx`
-- `revision_adjusted_regression_table.docx`
-- `revision_vif_table.docx`
 
 These output files are generated locally and are intentionally excluded from the public repository.
 
