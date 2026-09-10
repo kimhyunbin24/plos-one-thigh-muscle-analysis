@@ -1,0 +1,7 @@
+shared/node_modules/
+shared/_qa/
+outputs/*.json
+__pycache__/
+*.pyc
+
+
