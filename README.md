@@ -36,14 +36,16 @@ pip install -r requirements.txt
 
 Place the approved analysis dataset files in a local `data/` directory:
 
-- `data/data키제곱나눈값.sav`
-- `data/RWD_muscle_estimation_수술전_1126 - 복사본.xlsx`
+- `data/analysis_data.sav`
+- `data/muscle_measurements.xlsx`
 
 Alternatively, set environment variables:
 
 - `CT_VOLUME_DATA_DIR`: directory containing the approved analysis files
 - `CT_VOLUME_SAV_PATH`: full path to the SPSS `.sav` file
 - `CT_VOLUME_EXCEL_PATH`: full path to the Excel file used for Table 2
+- `CT_VOLUME_SHEET_NAME`: worksheet containing the Table 2 source data
+- `CT_VOLUME_ROW_LABEL`: optional row-category label used to select the analysis records
 
 Then run:
 
