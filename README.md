@@ -8,6 +8,7 @@ Artificial Intelligence-based Thigh Muscle Volume Profiling on CT in Elderly Eas
 
 - `table1_print.py`: Reproduces Table 1 baseline characteristics and exports a Word table.
 - `table2_print.py`: Reproduces Table 2 muscle volume and fat percentage descriptive results and exports a Word table.
+- `plos_revision_analysis/comment26_posthoc/run_comment26_posthoc.py`: Performs the repeated-measures compartment analysis, Greenhouse-Geisser correction, paired post hoc tests, and Holm multiplicity correction requested during revision.
 
 ## Files Not Included
 
@@ -52,6 +53,7 @@ Then run:
 ```bash
 python table1_print.py
 python table2_print.py
+python -m plos_revision_analysis.comment26_posthoc.run_comment26_posthoc
 ```
 
 The scripts print the results to the console and save Word-format output tables in the working directory.
