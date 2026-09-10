@@ -49,17 +49,11 @@ def _resolve_input(env_name: str, filename: str) -> Path:
 
 
 def sav_path() -> Path:
-    return _resolve_input("CT_VOLUME_SAV_PATH", "data키제곱나눈값.sav")
+    return _resolve_input("CT_VOLUME_SAV_PATH", "analysis_data.sav")
 
 
 def excel_path() -> Path:
-    preferred = "RWD_muscle_estimation_수술전_1126 - 복사본.xlsx"
-    try:
-        return _resolve_input("CT_VOLUME_EXCEL_PATH", preferred)
-    except FileNotFoundError:
-        return _resolve_input(
-            "CT_VOLUME_EXCEL_PATH", "RWD_muscle_estimation_수술전_1126.xlsx"
-        )
+    return _resolve_input("CT_VOLUME_EXCEL_PATH", "muscle_measurements.xlsx")
 
 
 def manuscript_path() -> Path:
