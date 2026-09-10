@@ -16,10 +16,11 @@ DATA_DIR = Path(os.environ.get("CT_VOLUME_DATA_DIR", Path(__file__).with_name("d
 EXCEL_PATH = Path(
     os.environ.get(
         "CT_VOLUME_EXCEL_PATH",
-        DATA_DIR / "RWD_muscle_estimation_수술전_1126 - 복사본.xlsx",
+        DATA_DIR / "muscle_measurements.xlsx",
     )
 )
-SHEET_NAME = "수술전 (2)"
+SHEET_NAME = os.environ.get("CT_VOLUME_SHEET_NAME", "analysis")
+ROW_LABEL = os.environ.get("CT_VOLUME_ROW_LABEL", "").strip()
 OUTPUT_DOCX = Path(__file__).with_name("table2_output.docx")
 
 
@@ -38,7 +39,7 @@ def load_preop_rows(path: Path = EXCEL_PATH) -> tuple[list[str], list[list[objec
         values = list(row)
         if row_i == 2:
             headers = [str(v).strip() if v is not None else "" for v in values]
-        elif row_i >= 3 and len(values) > 1 and values[1] == "수술전":
+        elif row_i >= 3 and (not ROW_LABEL or (len(values) > 1 and str(values[1]).strip() == ROW_LABEL)):
             rows.append(values)
 
     workbook.close()
