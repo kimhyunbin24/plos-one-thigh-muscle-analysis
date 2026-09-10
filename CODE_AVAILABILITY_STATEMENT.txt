@@ -1,8 +1,0 @@
-Suggested manuscript statement:
-
-The author-generated analysis code supporting the findings of this study is publicly available without restriction at https://github.com/kimhyunbin24/plos-one-thigh-muscle-analysis.
-
-Suggested Response to Reviewers statement:
-
-We thank the editor for this important reminder. The author-generated analysis code used to reproduce the descriptive tables and revised statistical analyses has been organized for reproducibility and reuse. The code will be made publicly available without restrictions upon publication through a public GitHub repository. The repository will include the analysis scripts, documentation, dependency information, and an open-source license to facilitate reproducibility and reuse.
-
