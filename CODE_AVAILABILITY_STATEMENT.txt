@@ -1,6 +1,6 @@
 Suggested manuscript statement:
 
-The author-generated analysis code supporting the findings of this study will be made publicly available without restriction upon publication at https://github.com/kimhyunbin24/plos-thigh-muscle-analysis.
+The author-generated analysis code supporting the findings of this study is publicly available without restriction at https://github.com/kimhyunbin24/plos-one-thigh-muscle-analysis.
 
 Suggested author response statement:
 
