@@ -14,7 +14,7 @@ from docx.shared import Inches, Pt
 
 DATA_DIR = Path(os.environ.get("CT_VOLUME_DATA_DIR", Path(__file__).with_name("data")))
 SAV_PATH = Path(
-    os.environ.get("CT_VOLUME_SAV_PATH", DATA_DIR / "analysis_data.sav")
+    os.environ.get("CT_VOLUME_SAV_PATH", DATA_DIR / "data키제곱나눈값.sav")
 )
 OUTPUT_DOCX = Path(__file__).with_name("table1_output.docx")
 
@@ -30,8 +30,8 @@ def _clean_bytes(raw: bytes) -> str:
 def read_spss_sav(path: Path) -> list[dict[str, float | str]]:
     """Small SPSS .sav reader for this file.
 
-    It handles the standard compressed numeric/string layout used by the
-    analysis dataset, avoiding a dependency on pyreadstat.
+    It handles the standard compressed numeric/string layout used by
+    data키제곱나눈값.sav, avoiding a dependency on pyreadstat.
     """
     data = path.read_bytes()
     endian = "<"
