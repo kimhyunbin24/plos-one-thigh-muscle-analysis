@@ -1,6 +1,6 @@
-# AI-based Thigh Muscle Volume Profiling Analysis Code
+# CT-Based Thigh Muscle Profiling Analysis Code
 
-This repository contains author-generated analysis scripts for the manuscript:
+This repository contains author-generated analysis scripts supporting the manuscript:
 
 Artificial Intelligence-based Thigh Muscle Volume Profiling on CT in Elderly East Asian Patients with Hip Fracture
 
@@ -8,8 +8,7 @@ Artificial Intelligence-based Thigh Muscle Volume Profiling on CT in Elderly Eas
 
 - `table1_print.py`: Reproduces Table 1 baseline characteristics and exports a Word table.
 - `table2_print.py`: Reproduces Table 2 muscle volume and fat percentage descriptive results and exports a Word table.
-- `analyses/repeated_measures_posthoc.py`: Performs repeated-measures compartment analysis, Greenhouse-Geisser correction, paired post hoc tests, and Holm multiplicity correction.
-- `analyses/dicom_metadata_audit.py`: Summarizes CT acquisition metadata without reading image pixels.
+- `revision_adjusted_analysis.py`: Generates the adjusted statistical analyses, including height-squared normalized volume summaries, anatomical group comparisons with multiple-comparison correction, multivariable regression models, BMI sensitivity analyses, and variance inflation factors.
 
 ## Files Not Included
 
@@ -38,39 +37,47 @@ pip install -r requirements.txt
 
 Place the approved analysis dataset files in a local `data/` directory:
 
-- `data/analysis_data.sav`
-- `data/muscle_measurements.xlsx`
+- `data/data키제곱나눈값.sav`
+- `data/RWD_muscle_estimation_수술전_1126 - 복사본.xlsx`
 
 Alternatively, set environment variables:
 
 - `CT_VOLUME_DATA_DIR`: directory containing the approved analysis files
 - `CT_VOLUME_SAV_PATH`: full path to the SPSS `.sav` file
 - `CT_VOLUME_EXCEL_PATH`: full path to the Excel file used for Table 2
-- `CT_VOLUME_SHEET_NAME`: worksheet containing the Table 2 source data
-- `CT_VOLUME_ROW_LABEL`: optional row-category label used to select the analysis records
 
 Then run:
 
 ```bash
 python table1_print.py
 python table2_print.py
-python analyses/repeated_measures_posthoc.py
+python revision_adjusted_analysis.py
 ```
 
-The scripts print the results to the console and save Word-format output tables in the working directory.
+The scripts print aggregate results to the console and save Word-format output tables in the working directory.
 
 ## Expected Outputs
 
 - `table1_output.docx`
 - `table2_output.docx`
+- `revision_normalized_volume_table.docx`
+- `revision_pairwise_comparison_table.docx`
+- `revision_adjusted_regression_table.docx`
+- `revision_vif_table.docx`
 
 These output files are generated locally and are intentionally excluded from the public repository.
+
+## Repository Scope
+
+This public code package is limited to reproducible analysis scripts, dependency information,
+licensing, and documentation. It does not include submission documents, internal audit scripts,
+generated tables, or patient-level source data.
 
 ## Code Availability Statement
 
 The author-generated analysis code supporting the findings of this study will be made publicly available without restriction upon publication at:
 
-`https://github.com/kimhyunbin24/plos-one-thigh-muscle-analysis`
+`https://github.com/kimhyunbin24/plos-thigh-muscle-analysis`
 
 ## License
 
