@@ -15,7 +15,7 @@ from table1_print import read_spss_sav
 
 DATA_DIR = Path(os.environ.get("CT_VOLUME_DATA_DIR", Path(__file__).with_name("data")))
 SAV_PATH = Path(
-    os.environ.get("CT_VOLUME_SAV_PATH", DATA_DIR / "data키제곱나눈값.sav")
+    os.environ.get("CT_VOLUME_SAV_PATH", DATA_DIR / "analysis_data.sav")
 )
 OUTPUT_DOCX = Path(__file__).with_name("table2_output.docx")
 
