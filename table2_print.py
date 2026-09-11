@@ -7,136 +7,102 @@ from statistics import mean, stdev
 
 from docx import Document
 from docx.enum.section import WD_ORIENT
-from docx.enum.table import WD_TABLE_ALIGNMENT, WD_CELL_VERTICAL_ALIGNMENT
+from docx.enum.table import WD_CELL_VERTICAL_ALIGNMENT, WD_TABLE_ALIGNMENT
 from docx.shared import Inches, Pt
-from openpyxl import load_workbook
+
+from table1_print import read_spss_sav
 
 
 DATA_DIR = Path(os.environ.get("CT_VOLUME_DATA_DIR", Path(__file__).with_name("data")))
-EXCEL_PATH = Path(
-    os.environ.get(
-        "CT_VOLUME_EXCEL_PATH",
-        DATA_DIR / "muscle_measurements.xlsx",
-    )
+SAV_PATH = Path(
+    os.environ.get("CT_VOLUME_SAV_PATH", DATA_DIR / "data키제곱나눈값.sav")
 )
-SHEET_NAME = os.environ.get("CT_VOLUME_SHEET_NAME", "analysis")
-ROW_LABEL = os.environ.get("CT_VOLUME_ROW_LABEL", "").strip()
 OUTPUT_DOCX = Path(__file__).with_name("table2_output.docx")
 
 
-def is_number(value: object) -> bool:
-    return isinstance(value, (int, float)) and not (isinstance(value, float) and math.isnan(value))
+TABLE2_ROWS = [
+    ("Anterior group", "anterior_Total", "anterior_pure", "anterior_fat", "group"),
+    ("Sartorius", "sartorius_total_volume", "sartorius_pure_volume", "sartorius_fat_volume", "muscle"),
+    ("Rectus femoris", "rectus_femoris_total_volume", "rectus_femoris_pure_volume", "rectus_femoris_fat_volume", "muscle"),
+    ("Vastus lateralis", "vastus_lateralis_total_volume", "vastus_lateralis_pure_volume", "vastus_lateralis_fat_volume", "muscle"),
+    ("Vastus intermedius", "vastus_intermedius_total_volume", "vastus_intermedius_pure_volume", "vastus_intermedius_fat_volume", "muscle"),
+    ("Vastus medialis", "vastus_medialis_total_volume", "vastus_medialis_pure_volume", "vastus_medialis_fat_volume", "muscle"),
+    ("", "", "", "", "blank"),
+    ("Medial group", "medial_total", "medial_pure", "medial_fat", "group"),
+    ("Adductor longus", "adductor_longus_total_volume", "adductor_longus_pure_volume", "adductor_longus_fat_volume", "muscle"),
+    ("Adductor brevis", "adductor_brevis_total_volume", "adductor_brevis_pure_volume", "adductor_brevis_fat_volume", "muscle"),
+    ("Adductor magnus", "adductor_magnus_total_volume", "adductor_magnus_pure_volume", "adductor_magnus_fat_volume", "muscle"),
+    ("Gracilis", "gracilis_total_volume", "gracilis_pure_volume", "gracilis_fat_volume", "muscle"),
+    ("Pectineus", "pectineus_total_volume", "pectineus_pure_volume", "pectineus_fat_volume", "muscle"),
+    ("", "", "", "", "blank"),
+    ("Posterior group", "posterior_total", "posterior_pure", "posterior_fat", "group"),
+    ("Semitendinosus", "semitendinosus_total_volume", "semitendinosus_pure_volume", "semitendinosus_fat_volume", "muscle"),
+    ("Semimembranosus", "semimembranosus_total_volume", "semimembranosus_pure_volume", "semimembranosus_fat_volume", "muscle"),
+    ("Biceps femoris", "biceps_femoris_total_volume", "biceps_femoris_pure_volume", "biceps_femoris_fat_volume", "muscle"),
+    ("", "", "", "", "blank"),
+    ("Gluteal group", "gluteal_total", "gluteal_pure", "gluteal_fat", "group"),
+    ("Gluteus maximus", "gluteus_maximus_total_volume", "gluteus_maximus_pure_volume", "gluteus_maximus_fat_volume", "muscle"),
+    ("Gluteus medius", "gluteus_medius_total_volume", "gluteus_medius_pure_volume", "gluteus_medius_fat_volume", "muscle"),
+    ("Gluteus minimus", "gluteus_minimus_total_volume", "gluteus_minimus_pure_volume", "gluteus_minimus_fat_volume", "muscle"),
+    ("Tensor fascia latae", "tensor_fascia_latae_total_volume", "tensor_fascia_latae_pure_volume", "tensor_fascia_latae_fat_volume", "muscle"),
+    ("Piriformis", "piriformis_total_volume", "piriformis_pure_volume", "piriformis_fat_volume", "muscle"),
+    ("Obturator internus", "obturator_internus_total_volume", "obturator_internus_pure_volume", "obturator_internus_fat_volume", "muscle"),
+    ("Obturator externus", "obturator_externus_total_volume", "obturator_externus_pure_volume", "obturator_externus_fat_volume", "muscle"),
+    ("Quadratus femoris", "quadratus_femoris_total_volume", "quadratus_femoris_pure_volume", "quadratus_femoris_fat_volume", "muscle"),
+    ("", "", "", "", "blank"),
+    ("Others", "other_total", "other_pure", "other_fat", "group"),
+    ("Iliacus", "iliacus_total_volume", "iliacus_pure_volume", "iliacus_fat_volume", "muscle"),
+    ("Iliopsoas", "iliopsoas_total_volume", "iliopsoas_pure_volume", "iliopsoas_fat_volume", "muscle"),
+    ("Abdominal oblique", "abdominal_oblique_total_volume", "abdominal_oblique_pure_volume", "abdominal_oblique_fat_volume", "muscle"),
+    ("Multifidus", "multifidus_total_volume", "multifidus_pure_volume", "multifidus_fat_volume", "muscle"),
+    ("Rectus abdominis", "rectus_abdominis_total_volume", "rectus_abdominis_pure_volume", "rectus_abdominis_fat_volume", "muscle"),
+    ("", "", "", "", "blank"),
+    ("Total thigh muscle volume", "femoral_total_volume", "femoral_pure_volume", "femoral_fat_volume", "total"),
+]
 
 
-def load_preop_rows(path: Path = EXCEL_PATH) -> tuple[list[str], list[list[object]]]:
-    workbook = load_workbook(path, read_only=True, data_only=True)
-    sheet = workbook[SHEET_NAME]
-
-    headers: list[str] = []
-    rows: list[list[object]] = []
-
-    for row_i, row in enumerate(sheet.iter_rows(values_only=True), start=1):
-        values = list(row)
-        if row_i == 2:
-            headers = [str(v).strip() if v is not None else "" for v in values]
-        elif row_i >= 3 and (not ROW_LABEL or (len(values) > 1 and str(values[1]).strip() == ROW_LABEL)):
-            rows.append(values)
-
-    workbook.close()
-    return headers, rows
+def is_valid_number(value: object) -> bool:
+    return isinstance(value, (int, float)) and not math.isnan(float(value))
 
 
-def mean_sd_by_column(rows: list[list[object]], col_1based: int, scale: float = 1.0) -> str:
-    idx = col_1based - 1
-    values = [float(row[idx]) / scale for row in rows if len(row) > idx and is_number(row[idx])]
+def get_values(rows: list[dict[str, float | str]], name: str, scale: float = 1.0) -> list[float]:
+    return [float(row[name]) * scale for row in rows if is_valid_number(row.get(name))]
+
+
+def mean_sd(values: list[float]) -> str:
     return f"{mean(values):.2f}±{stdev(values):.2f}"
-
-
-def mean_sd_by_header(rows: list[list[object]], headers: list[str], header: str, scale: float = 1.0) -> str:
-    idx = headers.index(header)
-    values = [float(row[idx]) / scale for row in rows if len(row) > idx and is_number(row[idx])]
-    return f"{mean(values):.2f}±{stdev(values):.2f}"
-
-
-def muscle_row(
-    label: str,
-    rows: list[list[object]],
-    headers: list[str],
-    prefix: str | None = None,
-    cols: tuple[int, int, int, int] | None = None,
-) -> tuple[str, str, str, str, str]:
-    """Return row in manuscript order: total, pure, fat, fat percentage.
-
-    Volume columns are stored as mm3 in Excel and printed as cm3.
-    The manuscript's fat percentage column matches Excel percentage / 10.
-    """
-    if cols is not None:
-        total_col, pure_col, fat_col, percent_col = cols
-        return (
-            label,
-            mean_sd_by_column(rows, total_col, 1000),
-            mean_sd_by_column(rows, pure_col, 1000),
-            mean_sd_by_column(rows, fat_col, 1000),
-            mean_sd_by_column(rows, percent_col, 10),
-        )
-
-    if prefix is None:
-        raise ValueError("Either prefix or cols must be provided.")
-
-    return (
-        label,
-        mean_sd_by_header(rows, headers, f"{prefix}_total_volume_mm3", 1000),
-        mean_sd_by_header(rows, headers, f"{prefix}_pure_volume_mm3", 1000),
-        mean_sd_by_header(rows, headers, f"{prefix}_fat_volume_mm3", 1000),
-        mean_sd_by_header(rows, headers, f"{prefix}_fat_percentage", 10),
-    )
 
 
 def build_table_2() -> list[tuple[str, str, str, str, str]]:
-    headers, rows = load_preop_rows()
-
-    # Group rows use duplicate Excel headers ("Total", "Fat", "Pure", "Fat"),
-    # so they are mapped by fixed 1-based Excel column numbers.
-    return [
-        ("Muscles", "Total muscle volume (cm3, mean±SD)", "Pure muscle volume (cm3, mean±SD)", "Fat volume (cm3, mean±SD)", "Fat percentage (%, mean±SD)"),
-        muscle_row("Anterior group", rows, headers, cols=(27, 29, 28, 30)),
-        muscle_row("Sartorius", rows, headers, "sartorius"),
-        muscle_row("Rectus femoris", rows, headers, "rectus_femoris"),
-        muscle_row("Vastus lateralis", rows, headers, "vastus_lateralis"),
-        muscle_row("Vastus intermedius", rows, headers, "vastus_intermedius"),
-        muscle_row("Vastus medialis", rows, headers, "vastus_medialis"),
-        ("", "", "", "", ""),
-        muscle_row("Medial group", rows, headers, cols=(51, 53, 52, 54)),
-        muscle_row("Adductor longus", rows, headers, "adductor_longus"),
-        muscle_row("Adductor brevis", rows, headers, "adductor_brevis"),
-        muscle_row("Adductor magnus", rows, headers, "adductor_magnus"),
-        muscle_row("Gracilis", rows, headers, "gracilis"),
-        muscle_row("Pectineus", rows, headers, "pectineus"),
-        ("", "", "", "", ""),
-        muscle_row("Posterior group", rows, headers, cols=(103, 105, 104, 106)),
-        muscle_row("Semitendinosus", rows, headers, "semitendinosus"),
-        muscle_row("Semimembranosus", rows, headers, "semimembranosus"),
-        muscle_row("Biceps femoris", rows, headers, "biceps_femoris"),
-        ("", "", "", "", ""),
-        muscle_row("Gluteal group", rows, headers, cols=(87, 89, 88, 90)),
-        muscle_row("Gluteus maximus", rows, headers, "gluteus_maximus"),
-        muscle_row("Gluteus medius", rows, headers, "gluteus_medius"),
-        muscle_row("Gluteus minimus", rows, headers, "gluteus_minimus"),
-        muscle_row("Tensor fascia latae", rows, headers, "tensor_fascia_latae"),
-        muscle_row("Piriformis", rows, headers, "piriformis"),
-        muscle_row("Obturator internus", rows, headers, "obturator_internus"),
-        muscle_row("Obturator externus", rows, headers, "obturator_externus"),
-        muscle_row("Quadratus femoris", rows, headers, "quadratus_femoris"),
-        ("", "", "", "", ""),
-        muscle_row("Others", rows, headers, cols=(127, 129, 128, 130)),
-        muscle_row("Iliacus", rows, headers, "iliacus"),
-        muscle_row("Iliopsoas", rows, headers, "iliopsoas"),
-        muscle_row("Abdominal oblique", rows, headers, "abdominal_oblique"),
-        muscle_row("Multifidus", rows, headers, "multifidus"),
-        muscle_row("Rectus abdominis", rows, headers, "rectus_abdominis"),
-        ("", "", "", "", ""),
-        muscle_row("Total thigh muscle volume", rows, headers, "femoral"),
+    rows = read_spss_sav(SAV_PATH)
+    table = [
+        (
+            "Muscles",
+            "Total muscle volume (cm3/m2, mean±SD)",
+            "Pure muscle volume (cm3/m2, mean±SD)",
+            "IMAT volume (cm3/m2, mean±SD)",
+            "IMAT percentage (%, mean±SD)",
+        )
     ]
+
+    for label, total_name, pure_name, fat_name, row_type in TABLE2_ROWS:
+        if row_type == "blank":
+            table.append(("", "", "", "", ""))
+            continue
+
+        total = get_values(rows, total_name, scale=10.0)
+        pure = get_values(rows, pure_name, scale=10.0)
+        fat = get_values(rows, fat_name, scale=10.0)
+        imat_percentage = [
+            float(row[fat_name]) / float(row[pure_name]) * 10.0
+            for row in rows
+            if is_valid_number(row.get(fat_name))
+            and is_valid_number(row.get(pure_name))
+            and float(row[pure_name]) != 0.0
+        ]
+        table.append((label, mean_sd(total), mean_sd(pure), mean_sd(fat), mean_sd(imat_percentage)))
+
+    return table
 
 
 def save_table_2_docx(table: list[tuple[str, str, str, str, str]], output_path: Path = OUTPUT_DOCX) -> None:
@@ -154,10 +120,18 @@ def save_table_2_docx(table: list[tuple[str, str, str, str, str]], output_path: 
     styles["Normal"].font.size = Pt(7.5)
 
     title = doc.add_paragraph()
-    title_run = title.add_run("Table 2. Muscle volume and fat composition")
+    title_run = title.add_run("Table 2. Height-normalized muscle volume and IMAT composition")
     title_run.bold = True
     title_run.font.name = "Arial"
     title_run.font.size = Pt(10.5)
+
+    note = doc.add_paragraph()
+    note_run = note.add_run(
+        "Values are mean±SD. Total, pure, and IMAT volumes are height-squared normalized "
+        "values expressed as cm3/m2."
+    )
+    note_run.font.name = "Arial"
+    note_run.font.size = Pt(7.5)
 
     word_table = doc.add_table(rows=len(table), cols=5)
     word_table.alignment = WD_TABLE_ALIGNMENT.CENTER
